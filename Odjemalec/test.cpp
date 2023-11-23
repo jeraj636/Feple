@@ -1,53 +1,45 @@
-#include "HenigmaEngine/Include/Risalnik.h"
-#include "HenigmaEngine/Include/Log.h"
-#include "HenigmaEngine/Include/Font.h"
-#include "HenigmaEngine/Include/Matematika/Matematika.h"
-#include "HenigmaEngine/Include/Scena.h"
-#include "HenigmaEngine/Include/Objekt.h"
+//
+// client.cpp
+// ~~~~~~~~~~
+//
+// Copyright (c) 2003-2021 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+//
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
 
-#include <string>
 #include <iostream>
-#include <chrono>
-
+#include <boost/array.hpp>
 #include <boost/asio.hpp>
+#include "Odjemalec.h"
 using boost::asio::ip::tcp;
 
 int main()
 {
-    /*
-    Risalnik::Init("Jakob", 400, 600, 0);
-    Risalnik::odzadje = 0xcc7722ff;
-    Risalnik::sredstvaPath = "../Sredstva";
-
-    while (!Risalnik::AliSeMoramZapreti())
+    try
     {
-        Risalnik::ZacetekFrame();
-
-        Risalnik::KonecFrame();
+        std::string ip, port;
+        // std::cout << "IP: ";
+        // std::cin >> ip;
+        // std::cout << "PORT: ";
+        // std::cin >> port;
+        ip = "127.0.0.1";
+        port = "6589";
+        boost::asio::io_context ioKonetkst;
+        Odjemalec test(ioKonetkst, ip, port);
+        for (;;)
+        {
+            std::cout << test.SprejmiSporocilo() << "\n";
+            std::string sporocilo;
+            std::cout << "> ";
+            std::cin >> sporocilo;
+            test.PosljiSporocilo(sporocilo);
+        }
     }
-    Risalnik::Konec();
-    */
-    std::string ip;
-    std::cout << "ip: ";
-    std::cin >> ip;
-    std::cout << '\n';
-
-    boost::asio::io_context io_context;
-
-    tcp::resolver resolver(io_context);
-
-    tcp::resolver::results_type endPoints = resolver.resolve(ip, "daytime");
-
-    tcp::socket socket(io_context);
-
-    boost::asio::connect(socket, endPoints);
-    for (;;)
+    catch (std::exception &e)
     {
-        char buf[128];
-        boost::system::error_code error;
-
-        size_t len = socket.read_some(boost::asio::buffer(buf), error);
-
-        std::cout.write(buf, len);
+        std::cerr << e.what() << std::endl;
     }
+
+    return 0;
 }
